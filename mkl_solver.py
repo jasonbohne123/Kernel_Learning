@@ -106,7 +106,7 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
             print("Weights are ",d_m)
        
     if abs(duality_gap)<gap:
-            print("Duality Gap Reached")
+            print("Duality Gap Reached", duality_gap)
             return d_m,kernel_list
     else:
         print("Max Iterations Reached")
