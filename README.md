@@ -4,7 +4,7 @@
 - Train Support Vector Machines for short-term trend classification on price data
 
 **Available Data**
-- Jan 01-30 2020 of high-frequency AAPL Quote Data from NYSE
+- Jan 2020 of high-frequency AAPL Quote Data from NYSE
 - Original observations consist of 11 million quotes
 - Applied standard techniques for cleaning and preprocessing 
 
@@ -19,5 +19,5 @@
 
   
 **Repo Outline**
-  - Data and Features
-  - Kernel Function Research
+  - Feature Generation from Original Data
+  - Kernel (Single and Multiple) Functions
