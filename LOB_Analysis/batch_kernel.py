@@ -1,5 +1,5 @@
 from sklearn import svm
-from sklearn.metrics import accuracy_score, recall_score, precision_score
+from sklearn.metrics import accuracy_score, recall_score
 import numpy as np
 import sys
 
@@ -91,11 +91,10 @@ def predict_svm_batch(batched_kernels, batch_index, batched_data,batch_estimates
         # compute weighted recall
         recall = recall_score(true, y_pred, average='weighted')
 
-
         # evaluation dictionary
         evaluation_dict = {"accuracy": accuracy,"recall": recall}
 
         # save predictions
-        batched_predictions[batch] = evaluation_dict
+        batched_predictions[batched_data[batch]["last_interval"]] = evaluation_dict
 
     return batched_predictions
