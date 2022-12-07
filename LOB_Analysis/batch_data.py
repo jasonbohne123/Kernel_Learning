@@ -1,6 +1,6 @@
 import numpy as np
 
-from Kernels.primal_dual import primal_dual_opt
+from Kernels.mkl_solver import primal_dual_opt
 
 def batch_features(features,outcomes,batch_size):
     """ Returns a batch of features and outcomes

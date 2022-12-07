@@ -1,6 +1,6 @@
-from helpers import *
+from Kernels.helpers import *
 import numpy as np
-from kernel import Kernel
+from Kernels.kernel import Kernel
 
 def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_threshold=0.01,maxouter_iter=100,maxinner_iter=10 ,verbose=True):
     """ Computes the optimal weights for the MKL objective using primal dual method
