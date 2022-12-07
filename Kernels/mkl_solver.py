@@ -13,7 +13,7 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
     d_m=np.ones(m)/m # initialize weights
     D=np.ones(m) # initialize descent direction
     mu=0 # initialize index of weight to be updated
-    line_search_steps=3 # number of steps for line search
+    line_search_steps=5 # number of steps for line search
     gamma_max=0 # initialize step size
     
     # initialize kernel types
