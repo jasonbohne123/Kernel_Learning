@@ -13,7 +13,7 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
     d_m=np.ones(m)/m # initialize weights
     D=np.ones(m) # initialize descent direction
     mu=0 # initialize index of weight to be updated
-    line_search_steps=25 # number of steps for line search
+    line_search_steps=3 # number of steps for line search
     gamma_max=0 # initialize step size
     
     # initialize kernel types
@@ -65,10 +65,14 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
         D_hat=D
         inner_iter=0
         
-        ### Investigate zero gamma step size
-        gamma_list=[]
-
-        while J_hat+inner_tol<J_d or inner_iter<maxinner_iter:
+        #default zero step size
+        gamma_list=[0]
+       
+        while J_hat<J_d :
+            
+            if inner_iter>maxinner_iter:
+                break
+            
             inner_iter+=1 
             
             # indices where descent direction is negative, 
@@ -78,7 +82,6 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
                 gamma_max=0  
             else:
                 gamma_max=np.min(-d_hat[nonzero_D]/D_hat[nonzero_D])
-
             gamma_list.append(gamma_max)
             D=D_hat
             d_m=d_hat
@@ -87,11 +90,14 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
                 
             D_hat[mu]=descent_direction(d_hat,mu,gradient_j,grad_mu)[mu]
             J_hat=compute_dual(X,y,kernel_list,d_hat,C,compute_gap=False)
+            if verbose:
+                print("inner iter",inner_iter)
             
         # line search in descent direction
         gamma_max=np.max(gamma_list)  
         gamma_step=line_search(X,y,kernel_list,D,d_m,gamma_max,disc=line_search_steps)
-        
+        if gamma_step is None:
+            gamma_step=0
        
         d_m=(d_m+gamma_step*D)
         if verbose:
@@ -106,8 +112,10 @@ def primal_dual_opt(X,y,m,kernel_type,order,gap=10e-4,inner_tol=10e-1,weight_thr
             print("Weights are ",d_m)
        
     if abs(duality_gap)<gap:
-            print("Duality Gap Reached", duality_gap)
+            if verbose:
+                print("Duality Gap Reached", duality_gap)
             return d_m,kernel_list
     else:
-        print("Max Iterations Reached")
+        if verbose:
+            print("Max Iterations Reached")
         return d_m,kernel_list
