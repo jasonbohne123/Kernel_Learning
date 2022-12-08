@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def generate_features_from_quotes(quotes, time_agg=60, save=False):
+def generate_features_from_quotes(quotes, time_agg=60, save=False,partition_dt=False):
     """Generate features from quotes data, aggregates to time_agg and labels outcome (future direction)"""
 
     simple_quotes = quotes[['Exchange', 'Symbol', 'Best_Bid_Price',
@@ -47,11 +47,23 @@ def generate_features_from_quotes(quotes, time_agg=60, save=False):
     grouped_quotes['outcome'].value_counts(
     )/len(grouped_quotes['outcome'].values)
 
+    
+   
     if save:
-        grouped_quotes.to_csv(
+        if partition_dt:
+            grouped_quotes['date']=[i.date() for i in grouped_quotes.index]
+            dt_grouped_quotes=grouped_quotes.groupby('date').groups
+            
+            for dt in dt_grouped_quotes:
+                grouped_quotes.loc[dt_grouped_quotes[dt]].to_csv(
+                    '/home/jbohn/jupyter/personal/Kernel_Learning/data/labeled_data_'+str(dt)+'.csv')
+        else:
+            grouped_quotes.to_csv(
             '/home/jbohn/jupyter/personal/Kernel_Learning/data/labeled_data.csv')
-
-    return grouped_quotes
+    if partition_dt:
+        return dt_grouped_quotes
+    else:
+        return grouped_quotes
 
 
 def gen_interval(quotes, freq):
