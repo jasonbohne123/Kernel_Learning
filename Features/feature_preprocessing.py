@@ -56,13 +56,13 @@ def generate_features_from_quotes(quotes, time_agg=60, single_dt=None,save=False
             
             for dt in dt_grouped_quotes:
                 grouped_quotes.loc[dt_grouped_quotes[dt]].to_csv(
-                    '/home/jbohn/jupyter/personal/Kernel_Learning/data/labeled_data_'+str(dt)+'.csv')
+                    '/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data_'+str(dt)+'.csv')
         else:
             if single_dt is not None:
-                grouped_quotes.to_csv(f'/home/jbohn/jupyter/personal/Kernel_Learning/Features/labeled_data_{single_dt}.csv')
+                grouped_quotes.to_csv(f'/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data_{single_dt}.csv')
             else:
                 grouped_quotes.to_csv(
-                    '/home/jbohn/jupyter/personal/Kernel_Learning/Features/labeled_data.csv')
+                    '/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data.csv')
     if partition_dt:
         return dt_grouped_quotes
     else:
