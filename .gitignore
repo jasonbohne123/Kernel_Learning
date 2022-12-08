@@ -1,6 +1,6 @@
-data/.ipynb_checkpoints
+
 .ipynb_checkpoints/
 __pycache__/
-data/AAPL_quotes.csv
-data/AAPL_trades.csv
+
+Data/cleaned_AAPL_quotes*.csv
 

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def generate_features_from_quotes(quotes, time_agg=60, save=False,partition_dt=False):
+def generate_features_from_quotes(quotes, time_agg=60, single_dt=None,save=False,partition_dt=False):
     """Generate features from quotes data, aggregates to time_agg and labels outcome (future direction)"""
 
     simple_quotes = quotes[['Exchange', 'Symbol', 'Best_Bid_Price',
@@ -58,8 +58,11 @@ def generate_features_from_quotes(quotes, time_agg=60, save=False,partition_dt=F
                 grouped_quotes.loc[dt_grouped_quotes[dt]].to_csv(
                     '/home/jbohn/jupyter/personal/Kernel_Learning/data/labeled_data_'+str(dt)+'.csv')
         else:
-            grouped_quotes.to_csv(
-            '/home/jbohn/jupyter/personal/Kernel_Learning/data/labeled_data.csv')
+            if single_dt is not None:
+                grouped_quotes.to_csv(f'/home/jbohn/jupyter/personal/Kernel_Learning/Features/labeled_data_{single_dt}.csv')
+            else:
+                grouped_quotes.to_csv(
+                    '/home/jbohn/jupyter/personal/Kernel_Learning/Features/labeled_data.csv')
     if partition_dt:
         return dt_grouped_quotes
     else:
