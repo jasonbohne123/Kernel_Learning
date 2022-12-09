@@ -16,6 +16,11 @@ def generate_features_from_quotes(quotes, time_agg=60, single_dt=None,save=False
         columns={'Best_Bid_Size': 'FB0', 'Best_Offer_Size': 'FA0'})
     simple_quotes['FB2'] = simple_quotes['FB0'].diff(periods=1)
     simple_quotes['FA2'] = simple_quotes['FA0'].diff(periods=1)
+
+    # paul add features
+    #simple_quotes['VPIN']=2+3
+
+
     simple_quotes = simple_quotes.dropna()
 
     # aggregation by time
