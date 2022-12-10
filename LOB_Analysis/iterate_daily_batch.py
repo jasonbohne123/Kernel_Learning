@@ -1,5 +1,3 @@
-
-import sys
 import pandas  as pd
 from LOB_Analysis.batch_data import batch_features,batch_solve_mkl
 from LOB_Analysis.batch_kernel import train_svm_batch, predict_svm_batch
@@ -21,7 +19,8 @@ def daily_batch(start,end,kernel_type, order, batch_size):
             print("No data for "+str(dt))
             continue
         
-        features=labeled_data[['FB0','FA0','FB2','FA2']]
+        # updated with recent features
+        features=labeled_data[[ 'Bid_Size', 'Offer_Size', 'Bid_Size_Diff', 'Offer_Size_Diff','Spread', 'Spread_Change', 'AWS', 'Anomaly', 'Rolling_Imbalance']]
         outcomes=labeled_data['outcome']
 
         batched_data = batch_features(features,outcomes, batch_size)

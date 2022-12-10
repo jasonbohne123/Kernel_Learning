@@ -2,69 +2,74 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+from Features.generators import *
 
-def generate_features_from_quotes(quotes, time_agg=60, single_dt=None,save=False,partition_dt=False):
+
+def generate_features_from_quotes(quotes, time_agg=60, single_dt=None, save=False, partition_dt=False):
     """Generate features from quotes data, aggregates to time_agg and labels outcome (future direction)"""
 
-    simple_quotes = quotes[['Exchange', 'Symbol', 'Best_Bid_Price',
-                            'Best_Bid_Size', 'Best_Offer_Price', 'Best_Offer_Size']]
+    quotes_copy = quotes.copy()
+    quotes_copy.index = pd.to_datetime(quotes_copy.index)
 
-    # linear features
-    simple_quotes = simple_quotes
-    simple_quotes.index = pd.to_datetime(simple_quotes.index)
-    simple_quotes = simple_quotes.rename(
-        columns={'Best_Bid_Size': 'FB0', 'Best_Offer_Size': 'FA0'})
-    simple_quotes['FB2'] = simple_quotes['FB0'].diff(periods=1)
-    simple_quotes['FA2'] = simple_quotes['FA0'].diff(periods=1)
+    quotes_copy['Bid_Size_Diff'] = quotes_copy['Bid_Size'].diff(periods=1)
+    quotes_copy['Offer_Size_Diff'] = quotes_copy['Offer_Size'].diff(periods=1)
 
-    # paul add features
-    #simple_quotes['VPIN']=2+3
+    quotes_copy[['Spread', 'Spread_Change']] = get_spread(quotes_copy)
 
+    quotes_copy[['WBP', 'WAP', 'VWAP']] = get_WAP(quotes_copy)
 
-    simple_quotes = simple_quotes.dropna()
+    quotes_copy['AWS'] = get_AWS(quotes_copy)
+
+    quotes_copy['Anomaly'] = get_Outliers(quotes_copy)
+
+    quotes_copy['Rolling_Imbalance'] = get_rolling_imbalance(quotes_copy)
+
+    quotes_copy = quotes_copy.dropna()
 
     # aggregation by time
-    intervals = gen_interval(simple_quotes, time_agg)
-    simple_quotes['last_interval'] = pd.Series(pd.to_datetime(
-        simple_quotes.index)).apply(lambda x: intervals[intervals < x][-1]).values
-    simple_quotes['p_time'] = simple_quotes.index
-    agg_fun = {'Exchange': 'first', 'Symbol': 'first', 'Best_Bid_Price': 'first', 'FB0': 'first',
-               'Best_Offer_Price': 'first', 'FA0': 'first', 'FB2': 'first', 'FA2': 'first', 'p_time': 'first'}
+    intervals = gen_interval(quotes_copy, time_agg)
+    quotes_copy['last_interval'] = pd.Series(pd.to_datetime(
+        quotes_copy.index)).apply(lambda x: intervals[intervals < x][-1]).values
+    quotes_copy['p_time'] = quotes_copy.index
+    agg_fun = {'Exchange': 'first', 'Bid_Price': 'first', 'Offer_Price': 'first',
+               'Bid_Size': 'first', 'Offer_Size': 'first', 'Bid_Size_Diff': 'first', 'Offer_Size_Diff': 'first',
+               'Spread': 'first', 'Spread_Change': 'first', 'WBP': 'first', 'WAP': 'first',
+               'VWAP': 'first', 'AWS': 'first', 'Anomaly': 'first', 'Rolling_Imbalance': 'first',
+               'p_time': 'last'}
 
-    grouped_quotes = simple_quotes.groupby('last_interval').agg(agg_fun)
+    grouped_quotes = quotes_copy.groupby('last_interval').agg(agg_fun)
 
     # outcome labels
     def classify_mid(x):
 
-        if x['Next_Best_Bid'] > x['Best_Offer_Price']:
+        if x['Next_Bid'] > x['Offer_Price']:
             return 1
-        elif x['Next_Best_Offer'] < x['Best_Bid_Price']:
+        elif x['Next_Offer'] < x['Bid_Price']:
             return -1
         else:
             return 0
 
-    grouped_quotes['Next_Best_Bid'] = grouped_quotes['Best_Bid_Price'].shift(
+    grouped_quotes['Next_Bid'] = grouped_quotes['Bid_Price'].shift(
         -1)
-    grouped_quotes['Next_Best_Offer'] = grouped_quotes['Best_Offer_Price'].shift(
+    grouped_quotes['Next_Offer'] = grouped_quotes['Offer_Price'].shift(
         -1)
     grouped_quotes['outcome'] = grouped_quotes.apply(
         lambda x: classify_mid(x), axis=1)
     grouped_quotes['outcome'].value_counts(
     )/len(grouped_quotes['outcome'].values)
 
-    
-   
     if save:
         if partition_dt:
-            grouped_quotes['date']=[i.date() for i in grouped_quotes.index]
-            dt_grouped_quotes=grouped_quotes.groupby('date').groups
-            
+            grouped_quotes['date'] = [i.date() for i in grouped_quotes.index]
+            dt_grouped_quotes = grouped_quotes.groupby('date').groups
+
             for dt in dt_grouped_quotes:
                 grouped_quotes.loc[dt_grouped_quotes[dt]].to_csv(
                     '/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data_'+str(dt)+'.csv')
         else:
             if single_dt is not None:
-                grouped_quotes.to_csv(f'/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data_{single_dt}.csv')
+                grouped_quotes.to_csv(
+                    f'/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data_{single_dt}.csv')
             else:
                 grouped_quotes.to_csv(
                     '/home/jbohn/jupyter/personal/Kernel_Learning/Features/Cleaned_Features/labeled_data.csv')

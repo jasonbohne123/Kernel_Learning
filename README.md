@@ -10,6 +10,7 @@
 
 **Feature Generation**
 - Generates features shown to be relevant to the limit order book
+- Examples inclue orderbook imbalance, quoted size and change in quoted size, average weighted spread
 - Features aggregated into 1-second increments by the sample mean
 
 **Model Formulation**
