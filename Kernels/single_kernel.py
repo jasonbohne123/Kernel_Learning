@@ -1,1 +1,0 @@
- ### Jarryd : single kernel code 

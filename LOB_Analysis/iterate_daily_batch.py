@@ -9,7 +9,7 @@ def daily_batch(start,end,kernel_type, order, batch_size):
     """
     
     all_accuracy={}
-    all_recall={}
+    all_precision={}
     dt_range = pd.date_range(start, end, freq='D')
     path='/home/jbohn/jupyter/personal/Kernel_Learning/'
 
@@ -30,12 +30,12 @@ def daily_batch(start,end,kernel_type, order, batch_size):
         batched_predictions = predict_svm_batch(batched_kernels, batch_index, batched_data, batch_estimates, kernel_type, order)
 
         accuracy=[i["accuracy"] for i in batched_predictions.values()]
-        recall=[i["recall"] for i in batched_predictions.values()]
+        precision=[i["precision"] for i in batched_predictions.values()]
         intraday_dt=[i for i in batched_predictions.keys()]
 
         for i in range(len(accuracy)):
             all_accuracy[intraday_dt[i]]=accuracy[i]
-            all_recall[intraday_dt[i]]=recall[i]
+            all_precision[intraday_dt[i]]=precision[i]
     
 
-    return all_accuracy, all_recall
+    return all_accuracy, all_precision

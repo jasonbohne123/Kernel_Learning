@@ -1,5 +1,5 @@
 from sklearn import svm
-from sklearn.metrics import accuracy_score, recall_score
+from sklearn.metrics import accuracy_score, recall_score, precision_score
 import numpy as np
 import sys
 
@@ -17,19 +17,29 @@ def train_svm_batch(batched_data, batch_estimates, kernel_type, order):
 
     counter = 0
 
-    # initialize kernel types
-    if kernel_type == 'linear':
-        kernel_list = [Kernel(kernel_type=kernel_type)
-                       for i in range(1, order+1)]
-    elif kernel_type == 'polynomial':
+    if order==1:
+        if kernel_type == 'linear' or kernel_type == 'polynomial' :
+            kernel_list = [Kernel(kernel_type=kernel_type)]
+        elif kernel_type == 'gaussian':
+            kernel_list = [Kernel(kernel_type, bandwidth=0.5)]
+        else:
+            print("Not Valid Kernel Type")
+            return
 
-        kernel_list = [Kernel(kernel_type, i) for i in range(1, order+1)]
-    elif kernel_type == 'gaussian':
-        kernel_list = [Kernel(kernel_type, bandwidth=i)
-                       for i in np.linspace(0.1, 1, order)]  # gamma hyperparam
     else:
-        print("Not Valid Kernel Type")
-        return
+
+        # initialize kernel types
+        if kernel_type == 'linear':
+            kernel_list = [Kernel(kernel_type=kernel_type)
+                        for i in range(1, order+1)]
+        elif kernel_type == 'polynomial':
+            kernel_list = [Kernel(kernel_type, i) for i in range(1, order+1)]
+        elif kernel_type == 'gaussian':
+            kernel_list = [Kernel(kernel_type, bandwidth=i)
+                        for i in np.linspace(0.1, 1, order)]  # gamma hyperparam
+        else:
+            print("Not Valid Kernel Type")
+            return
 
     for batch, data in batched_data.items():
 
@@ -89,10 +99,13 @@ def predict_svm_batch(batched_kernels, batch_index, batched_data,batch_estimates
         accuracy = accuracy_score(true, y_pred)
 
         # compute weighted recall
-        recall = recall_score(true, y_pred, average='weighted')
+       # recall = recall_score(true, y_pred, average='weighted')
+
+        # compute precision
+        precision = precision_score(true, y_pred, average='weighted', zero_division=0)
 
         # evaluation dictionary
-        evaluation_dict = {"accuracy": accuracy,"recall": recall}
+        evaluation_dict = {"accuracy": accuracy, "precision": precision}
 
         # save predictions
         batched_predictions[batched_data[batch]["last_interval"]] = evaluation_dict
