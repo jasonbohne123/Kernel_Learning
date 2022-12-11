@@ -56,8 +56,6 @@ def generate_features_from_quotes(quotes, time_agg=1, single_dt=None, save=False
         -1)
     grouped_quotes['outcome'] = grouped_quotes.apply(
         lambda x: classify_mid(x), axis=1)
-    grouped_quotes['outcome'].value_counts(
-    )/len(grouped_quotes['outcome'].values)
 
     if save:
         if partition_dt:
