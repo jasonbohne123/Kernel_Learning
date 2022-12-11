@@ -5,11 +5,12 @@ import numpy as np
 from Features.generators import *
 
 
-def generate_features_from_quotes(quotes, time_agg=60, single_dt=None, save=False, partition_dt=False):
+def generate_features_from_quotes(quotes, time_agg=1, single_dt=None, save=False, partition_dt=False):
     """Generate features from quotes data, aggregates to time_agg and labels outcome (future direction)"""
 
     quotes_copy = quotes.copy()
     quotes_copy.index = pd.to_datetime(quotes_copy.index)
+    quotes_copy = quotes_copy.sort_index()
 
     quotes_copy['Bid_Size_Diff'] = quotes_copy['Bid_Size'].diff(periods=1)
     quotes_copy['Offer_Size_Diff'] = quotes_copy['Offer_Size'].diff(periods=1)
@@ -31,10 +32,10 @@ def generate_features_from_quotes(quotes, time_agg=60, single_dt=None, save=Fals
     quotes_copy['last_interval'] = pd.Series(pd.to_datetime(
         quotes_copy.index)).apply(lambda x: intervals[intervals < x][-1]).values
     quotes_copy['p_time'] = quotes_copy.index
-    agg_fun = {'Exchange': 'first', 'Bid_Price': 'first', 'Offer_Price': 'first',
-               'Bid_Size': 'first', 'Offer_Size': 'first', 'Bid_Size_Diff': 'first', 'Offer_Size_Diff': 'first',
-               'Spread': 'first', 'Spread_Change': 'first', 'WBP': 'first', 'WAP': 'first',
-               'VWAP': 'first', 'AWS': 'first', 'Anomaly': 'first', 'Rolling_Imbalance': 'first',
+    agg_fun = {'Exchange': 'first', 'Bid_Price': np.mean, 'Offer_Price': np.mean,
+               'Bid_Size': np.mean, 'Offer_Size': np.mean, 'Bid_Size_Diff': np.mean, 'Offer_Size_Diff': np.mean,
+               'Spread': np.mean, 'Spread_Change': np.mean, 'WBP': np.mean, 'WAP': np.mean,
+               'VWAP': np.mean, 'AWS': np.mean, 'Anomaly': np.mean, 'Rolling_Imbalance': np.mean,
                'p_time': 'last'}
 
     grouped_quotes = quotes_copy.groupby('last_interval').agg(agg_fun)
