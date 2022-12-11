@@ -20,7 +20,7 @@ def daily_batch(start,end,kernel_type, order, batch_size):
             continue
         
         # updated with recent features
-        features=labeled_data[[ 'Bid_Size_Diff']] # 'AWS', 'Anomaly', 'Rolling_Imbalance']],'Spread', 'Spread_Change'
+        features=labeled_data[['Best_Bid_Size','Best_Offer_Size','Best_Bid_Size_Diff','Best_Offer_Size_Diff', 'AWS', 'Anomaly', 'Rolling_Imbalance','Spread', 'Spread_Change']]
         outcomes=labeled_data['outcome']
 
         batched_data = batch_features(features,outcomes, batch_size)

@@ -12,8 +12,8 @@ def generate_features_from_quotes(quotes, time_agg=1, single_dt=None, save=False
     quotes_copy.index = pd.to_datetime(quotes_copy.index)
     quotes_copy = quotes_copy.sort_index()
 
-    quotes_copy['Bid_Size_Diff'] = quotes_copy['Bid_Size'].diff(periods=1)
-    quotes_copy['Offer_Size_Diff'] = quotes_copy['Offer_Size'].diff(periods=1)
+    quotes_copy['Best_Bid_Size_Diff'] = quotes_copy['Best_Bid_Size'].diff(periods=1)
+    quotes_copy['Best_Offer_Size_Diff'] = quotes_copy['Best_Offer_Size'].diff(periods=1)
 
     quotes_copy[['Spread', 'Spread_Change']] = get_spread(quotes_copy)
 
@@ -32,8 +32,8 @@ def generate_features_from_quotes(quotes, time_agg=1, single_dt=None, save=False
     quotes_copy['last_interval'] = pd.Series(pd.to_datetime(
         quotes_copy.index)).apply(lambda x: intervals[intervals < x][-1]).values
     quotes_copy['p_time'] = quotes_copy.index
-    agg_fun = {'Exchange': 'first', 'Bid_Price': np.mean, 'Offer_Price': np.mean,
-               'Bid_Size': np.mean, 'Offer_Size': np.mean, 'Bid_Size_Diff': np.mean, 'Offer_Size_Diff': np.mean,
+    agg_fun = {'Exchange': 'first', 'Best_Bid_Price': np.mean, 'Best_Offer_Price': np.mean,
+               'Best_Bid_Size': np.mean, 'Best_Offer_Size': np.mean, 'Best_Bid_Size_Diff': np.mean, 'Best_Offer_Size_Diff': np.mean,
                'Spread': np.mean, 'Spread_Change': np.mean, 'WBP': np.mean, 'WAP': np.mean,
                'VWAP': np.mean, 'AWS': np.mean, 'Anomaly': np.mean, 'Rolling_Imbalance': np.mean,
                'p_time': 'last'}
@@ -43,16 +43,16 @@ def generate_features_from_quotes(quotes, time_agg=1, single_dt=None, save=False
     # outcome labels
     def classify_mid(x):
 
-        if x['Next_Bid'] > x['Offer_Price']:
+        if x['Best_Next_Bid'] > x['Best_Offer_Price']:
             return 1
-        elif x['Next_Offer'] < x['Bid_Price']:
+        elif x['Best_Next_Offer'] < x['Best_Bid_Price']:
             return -1
         else:
             return 0
 
-    grouped_quotes['Next_Bid'] = grouped_quotes['Bid_Price'].shift(
+    grouped_quotes['Best_Next_Bid'] = grouped_quotes['Best_Bid_Price'].shift(
         -1)
-    grouped_quotes['Next_Offer'] = grouped_quotes['Offer_Price'].shift(
+    grouped_quotes['Best_Next_Offer'] = grouped_quotes['Best_Offer_Price'].shift(
         -1)
     grouped_quotes['outcome'] = grouped_quotes.apply(
         lambda x: classify_mid(x), axis=1)
